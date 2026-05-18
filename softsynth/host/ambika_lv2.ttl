@@ -1,0 +1,511 @@
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
+@prefix atom: <http://lv2plug.in/ns/ext/atom#> .
+@prefix midi: <http://lv2plug.in/ns/ext/midi#> .
+@prefix param: <http://lv2plug.in/ns/ext/parameters#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ambika: <https://ambika.opencode/softsynth#> .
+
+<https://ambika.opencode/softsynth>
+    a lv2:Plugin ;
+    lv2:binary <ambika.so> ;
+    rdfs:label "Ambika" ;
+    rdfs:comment "6-voice hybrid polyphonic softsynth based on the Ambika voicecard engine" ;
+    lv2:optionalFeature lv2:hardRapable ;
+    lv2:port [
+        a lv2:InputPort , atom:AtomPort ;
+        atom:bufferType atom:Sequence ;
+        atom:supports midi:MidiEvent ;
+        lv2:index 0 ;
+        lv2:symbol "midi_in" ;
+        lv2:name "MIDI In"
+    ] , [
+        a lv2:OutputPort , lv2:AudioPort ;
+        lv2:index 1 ;
+        lv2:symbol "audio_out_l" ;
+        lv2:name "Audio Out L"
+    ] , [
+        a lv2:OutputPort , lv2:AudioPort ;
+        lv2:index 2 ;
+        lv2:symbol "audio_out_r" ;
+        lv2:name "Audio Out R"
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 3 ;
+        lv2:symbol "osc1_shape" ;
+        lv2:name "Osc1 Shape" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 4 ;
+        lv2:symbol "osc1_pwm" ;
+        lv2:name "Osc1 PWM" ;
+        lv2:default 0.25 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 5 ;
+        lv2:symbol "osc1_range" ;
+        lv2:name "Osc1 Range" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 6 ;
+        lv2:symbol "osc1_detune" ;
+        lv2:name "Osc1 Detune" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 7 ;
+        lv2:symbol "osc2_shape" ;
+        lv2:name "Osc2 Shape" ;
+        lv2:default 0.0909091 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 8 ;
+        lv2:symbol "osc2_param" ;
+        lv2:name "Osc2 Param" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 9 ;
+        lv2:symbol "osc2_range" ;
+        lv2:name "Osc2 Range" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 10 ;
+        lv2:symbol "osc2_detune" ;
+        lv2:name "Osc2 Detune" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 11 ;
+        lv2:symbol "filter_cutoff" ;
+        lv2:name "Filter Cutoff" ;
+        lv2:default 1 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 12 ;
+        lv2:symbol "filter_resonance" ;
+        lv2:name "Filter Resonance" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 13 ;
+        lv2:symbol "filter_mode" ;
+        lv2:name "Filter Mode" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 14 ;
+        lv2:symbol "filter_type" ;
+        lv2:name "Filter Type" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 15 ;
+        lv2:symbol "mix_balance" ;
+        lv2:name "Mix Balance" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 16 ;
+        lv2:symbol "mix_operator" ;
+        lv2:name "Mix Operator" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 17 ;
+        lv2:symbol "sub_osc" ;
+        lv2:name "Sub Osc" ;
+        lv2:default 0.3 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 18 ;
+        lv2:symbol "noise" ;
+        lv2:name "Noise" ;
+        lv2:default 0.06 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 19 ;
+        lv2:symbol "fuzz" ;
+        lv2:name "Fuzz" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 20 ;
+        lv2:symbol "env1_attack" ;
+        lv2:name "Env1 Attack" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 21 ;
+        lv2:symbol "env1_decay" ;
+        lv2:name "Env1 Decay" ;
+        lv2:default 0.3 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 22 ;
+        lv2:symbol "env1_sustain" ;
+        lv2:name "Env1 Sustain" ;
+        lv2:default 0.63 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 23 ;
+        lv2:symbol "env1_release" ;
+        lv2:name "Env1 Release" ;
+        lv2:default 0.3 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 24 ;
+        lv2:symbol "env2_attack" ;
+        lv2:name "Env2 Attack" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 25 ;
+        lv2:symbol "env2_decay" ;
+        lv2:name "Env2 Decay" ;
+        lv2:default 0.3 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 26 ;
+        lv2:symbol "env2_sustain" ;
+        lv2:name "Env2 Sustain" ;
+        lv2:default 0.63 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 27 ;
+        lv2:symbol "env2_release" ;
+        lv2:name "Env2 Release" ;
+        lv2:default 0.3 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 28 ;
+        lv2:symbol "env3_attack" ;
+        lv2:name "Env3 Attack" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 29 ;
+        lv2:symbol "env3_decay" ;
+        lv2:name "Env3 Decay" ;
+        lv2:default 0.3 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 30 ;
+        lv2:symbol "env3_sustain" ;
+        lv2:name "Env3 Sustain" ;
+        lv2:default 0.63 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 31 ;
+        lv2:symbol "env3_release" ;
+        lv2:name "Env3 Release" ;
+        lv2:default 0.3 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 32 ;
+        lv2:symbol "lfo_shape" ;
+        lv2:name "LFO Shape" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 33 ;
+        lv2:symbol "lfo_rate" ;
+        lv2:name "LFO Rate" ;
+        lv2:default 0.12 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 34 ;
+        lv2:symbol "volume" ;
+        lv2:name "Volume" ;
+        lv2:default 0.8 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 35 ;
+        lv2:symbol "portamento" ;
+        lv2:name "Portamento" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 36 ;
+        lv2:symbol "mod_0_source" ;
+        lv2:name "Mod 0 Source" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 37 ;
+        lv2:symbol "mod_0_dest" ;
+        lv2:name "Mod 0 Dest" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 38 ;
+        lv2:symbol "mod_0_amt" ;
+        lv2:name "Mod 0 Amt" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 39 ;
+        lv2:symbol "mod_1_source" ;
+        lv2:name "Mod 1 Source" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 40 ;
+        lv2:symbol "mod_1_dest" ;
+        lv2:name "Mod 1 Dest" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 41 ;
+        lv2:symbol "mod_1_amt" ;
+        lv2:name "Mod 1 Amt" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 42 ;
+        lv2:symbol "mod_2_source" ;
+        lv2:name "Mod 2 Source" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 43 ;
+        lv2:symbol "mod_2_dest" ;
+        lv2:name "Mod 2 Dest" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 44 ;
+        lv2:symbol "mod_2_amt" ;
+        lv2:name "Mod 2 Amt" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 45 ;
+        lv2:symbol "mod_3_source" ;
+        lv2:name "Mod 3 Source" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 46 ;
+        lv2:symbol "mod_3_dest" ;
+        lv2:name "Mod 3 Dest" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 47 ;
+        lv2:symbol "mod_3_amt" ;
+        lv2:name "Mod 3 Amt" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 48 ;
+        lv2:symbol "mod_4_source" ;
+        lv2:name "Mod 4 Source" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 49 ;
+        lv2:symbol "mod_4_dest" ;
+        lv2:name "Mod 4 Dest" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 50 ;
+        lv2:symbol "mod_4_amt" ;
+        lv2:name "Mod 4 Amt" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 51 ;
+        lv2:symbol "mod_5_source" ;
+        lv2:name "Mod 5 Source" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 52 ;
+        lv2:symbol "mod_5_dest" ;
+        lv2:name "Mod 5 Dest" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 53 ;
+        lv2:symbol "mod_5_amt" ;
+        lv2:name "Mod 5 Amt" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 54 ;
+        lv2:symbol "mod_6_source" ;
+        lv2:name "Mod 6 Source" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 55 ;
+        lv2:symbol "mod_6_dest" ;
+        lv2:name "Mod 6 Dest" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 56 ;
+        lv2:symbol "mod_6_amt" ;
+        lv2:name "Mod 6 Amt" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 57 ;
+        lv2:symbol "mod_7_source" ;
+        lv2:name "Mod 7 Source" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 58 ;
+        lv2:symbol "mod_7_dest" ;
+        lv2:name "Mod 7 Dest" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 59 ;
+        lv2:symbol "mod_7_amt" ;
+        lv2:name "Mod 7 Amt" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 60 ;
+        lv2:symbol "mod_8_source" ;
+        lv2:name "Mod 8 Source" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 61 ;
+        lv2:symbol "mod_8_dest" ;
+        lv2:name "Mod 8 Dest" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 62 ;
+        lv2:symbol "mod_8_amt" ;
+        lv2:name "Mod 8 Amt" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 63 ;
+        lv2:symbol "mod_9_source" ;
+        lv2:name "Mod 9 Source" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 64 ;
+        lv2:symbol "mod_9_dest" ;
+        lv2:name "Mod 9 Dest" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 65 ;
+        lv2:symbol "mod_9_amt" ;
+        lv2:name "Mod 9 Amt" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 66 ;
+        lv2:symbol "mod_10_source" ;
+        lv2:name "Mod 10 Source" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 67 ;
+        lv2:symbol "mod_10_dest" ;
+        lv2:name "Mod 10 Dest" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 68 ;
+        lv2:symbol "mod_10_amt" ;
+        lv2:name "Mod 10 Amt" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 69 ;
+        lv2:symbol "mod_11_source" ;
+        lv2:name "Mod 11 Source" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 70 ;
+        lv2:symbol "mod_11_dest" ;
+        lv2:name "Mod 11 Dest" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 71 ;
+        lv2:symbol "mod_11_amt" ;
+        lv2:name "Mod 11 Amt" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 72 ;
+        lv2:symbol "mod_12_source" ;
+        lv2:name "Mod 12 Source" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 73 ;
+        lv2:symbol "mod_12_dest" ;
+        lv2:name "Mod 12 Dest" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 74 ;
+        lv2:symbol "mod_12_amt" ;
+        lv2:name "Mod 12 Amt" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 75 ;
+        lv2:symbol "mod_13_source" ;
+        lv2:name "Mod 13 Source" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 76 ;
+        lv2:symbol "mod_13_dest" ;
+        lv2:name "Mod 13 Dest" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 77 ;
+        lv2:symbol "mod_13_amt" ;
+        lv2:name "Mod 13 Amt" ;
+        lv2:default 0.5 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 78 ;
+        lv2:symbol "panic" ;
+        lv2:name "Panic" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 79 ;
+        lv2:symbol "reset" ;
+        lv2:name "Reset" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 80 ;
+        lv2:symbol "prev_preset" ;
+        lv2:name "Prev Preset" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 81 ;
+        lv2:symbol "next_preset" ;
+        lv2:name "Next Preset" ;
+        lv2:default 0 ;
+    ] , [
+        a lv2:InputPort , lv2:ControlPort ;
+        lv2:index 82 ;
+        lv2:symbol "preset" ;
+        lv2:name "Preset" ;
+        lv2:default 0 ;
+    ] .

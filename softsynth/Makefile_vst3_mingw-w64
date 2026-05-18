@@ -1,0 +1,100 @@
+# Ambika Softsynth — VST3 cross-compile for Windows 64-bit
+#
+# Output: Ambika.vst3/Contents/x86_64-win/Ambika.vst3
+# Install: copy Ambika.vst3/ to your Windows VST3 folder, e.g.
+#   C:\Program Files\Common Files\VST3\Ambika.vst3\
+#
+# Prerequisites:
+#   sudo apt install g++-mingw-w64-x86-64
+#
+# Usage:
+#   make -f Makefile_vst3_mingw-w64           # builds vst3_win
+#   make -f Makefile_vst3_mingw-w64 vst3_win VST3_SDK_DIR=/custom/path
+#
+# VST3 SDK is auto-downloaded to vst3sdk/ if not present.
+
+# Windows cross-compiler (64-bit)
+CXX_WIN := x86_64-w64-mingw32-g++
+CXXFLAGS_WIN := -std=c++14 -O3 -Wall -Wextra \
+  -Wno-unused-parameter -Wno-enum-compare -Wno-narrowing \
+  -Wno-unused-variable -Wno-maybe-uninitialized -fno-strict-aliasing
+
+INCLUDES := -I.
+DEFINES := -DDISABLE_WAVETABLE_LFOS
+
+# VST3 SDK — auto-downloaded if headers are missing
+VST3_SDK_DIR ?= vst3sdk
+VST3_SDK_URL := https://github.com/steinbergmedia/vst3sdk.git
+VST3_SDK_TAG := v3.8.0_build_66
+VST3_CFLAGS := -I$(VST3_SDK_DIR)
+
+# Synthesis engine sources
+VOICE_SRCS := voicecard/voice.cc voicecard/oscillator.cc \
+              voicecard/resources.cc avrlib/random.cc patches.cc
+
+# VST3 SDK sources (needed at link time)
+VST3_SDK_SRCS := \
+  $(VST3_SDK_DIR)/pluginterfaces/base/coreiids.cpp \
+  $(VST3_SDK_DIR)/pluginterfaces/base/funknown.cpp \
+  $(VST3_SDK_DIR)/pluginterfaces/base/conststringtable.cpp \
+  $(VST3_SDK_DIR)/pluginterfaces/base/ustring.cpp \
+  $(VST3_SDK_DIR)/base/source/baseiids.cpp \
+  $(VST3_SDK_DIR)/base/source/fobject.cpp \
+  $(VST3_SDK_DIR)/base/source/fstring.cpp \
+  $(VST3_SDK_DIR)/base/source/fbuffer.cpp \
+  $(VST3_SDK_DIR)/base/source/fdebug.cpp \
+  $(VST3_SDK_DIR)/base/source/updatehandler.cpp \
+  $(VST3_SDK_DIR)/base/thread/source/flock.cpp \
+  $(VST3_SDK_DIR)/public.sdk/source/main/pluginfactory.cpp \
+  $(VST3_SDK_DIR)/public.sdk/source/main/dllmain.cpp \
+  $(VST3_SDK_DIR)/public.sdk/source/main/moduleinit.cpp \
+  $(VST3_SDK_DIR)/public.sdk/source/common/pluginview.cpp \
+  $(VST3_SDK_DIR)/public.sdk/source/common/memorystream.cpp \
+  $(VST3_SDK_DIR)/public.sdk/source/common/commoniids.cpp \
+  $(VST3_SDK_DIR)/public.sdk/source/vst/vstbus.cpp \
+  $(VST3_SDK_DIR)/public.sdk/source/vst/vstaudioeffect.cpp \
+  $(VST3_SDK_DIR)/public.sdk/source/vst/vstcomponent.cpp \
+  $(VST3_SDK_DIR)/public.sdk/source/vst/vstcomponentbase.cpp \
+  $(VST3_SDK_DIR)/public.sdk/source/vst/vsteditcontroller.cpp \
+  $(VST3_SDK_DIR)/public.sdk/source/vst/vstparameters.cpp \
+  $(VST3_SDK_DIR)/public.sdk/source/vst/vstinitiids.cpp
+
+all: vst3_win
+
+# ---------------------------------------------------------------------------
+# VST3 SDK auto-download
+# ---------------------------------------------------------------------------
+$(VST3_SDK_DIR)/pluginterfaces/base/funknown.h:
+	@echo "Downloading VST3 SDK from $(VST3_SDK_URL) tag $(VST3_SDK_TAG)..."
+	@rm -rf "$(VST3_SDK_DIR)"
+	@git clone --recursive --depth 1 --branch $(VST3_SDK_TAG) \
+	  $(VST3_SDK_URL) "$(VST3_SDK_DIR)"
+	@echo "Patching VST3 SDK for MinGW compatibility..."
+	@sed -i '/^#include <cstdlib>/a #include <limits>' \
+	  "$(VST3_SDK_DIR)/base/source/fstring.cpp"
+	@echo "VST3 SDK downloaded and patched."
+
+# ---------------------------------------------------------------------------
+# Windows VST3 plugin (cross-compiled)
+# ---------------------------------------------------------------------------
+vst3_win: Ambika.vst3/Contents/x86_64-win/Ambika.vst3
+
+Ambika.vst3/Contents/x86_64-win/Ambika.vst3: host/ambika_vst3.cpp $(VOICE_SRCS) \
+  $(VST3_SDK_SRCS) | $(VST3_SDK_DIR)/pluginterfaces/base/funknown.h
+	@mkdir -p "$$(dirname $@)"
+	$(CXX_WIN) $(CXXFLAGS_WIN) -shared -DNDEBUG \
+	  $(VST3_CFLAGS) $(INCLUDES) $(DEFINES) \
+	  $^ -o "$@" -static-libgcc -static-libstdc++ -luuid -lole32
+	@echo "Windows VST3 built: $@"
+
+# ---------------------------------------------------------------------------
+# Utility
+# ---------------------------------------------------------------------------
+clean:
+	rm -rf Ambika.vst3
+	rm -f test_*.wav filt_*.wav
+
+distclean: clean
+	rm -rf vst3sdk
+
+.PHONY: all vst3_win clean distclean
